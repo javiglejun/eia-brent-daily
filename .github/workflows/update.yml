@@ -1,0 +1,36 @@
+name: Actualizar Brent EIA
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repo
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Instalar librerías
+        run: pip install pandas requests xlrd openpyxl
+
+      - name: Ejecutar script
+        run: python eia_brent_daily.py
+
+      - name: Guardar cambios
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@github.com"
+          git add eia_brent.csv
+          git commit -m "update data" || echo "sin cambios"
+          git push
